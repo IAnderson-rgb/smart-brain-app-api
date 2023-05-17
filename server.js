@@ -1,8 +1,12 @@
 import express from 'express';
+import knex from 'knex';
 import bcrypt from 'bcrypt-nodejs';
 import cors from 'cors';
-import knex from 'knex';
 
+import {handelRegister} from './controllers/register.js';
+import {handelSignin} from './controllers/signin.js';
+import {handelProfile} from './controllers/profile_id.js';
+import {handelEntries} from './controllers/image.js';
 //Creates a connection to our PostgreSQL smart-brain databse.
 const db = knex({
 	client: 'pg',
@@ -30,86 +34,16 @@ app.get('/', (req, res) => {
 		.catch((err) => res.status(400).json('An error occurred.'));
 });
 
-app.post('/signin', (req, res) => {
-	db.select('email', 'hash')
-		.from('login')
-		.where('email', '=', req.body.email)
-		.then((data) => {
-			const isvalid = bcrypt.compareSync(req.body.password, data[0].hash);
-			if (isvalid) {
-				db.select('*')
-					.from('users')
-					.where('email', '=', req.body.email)
-					.then((user) => {
-						res.json(user[0]);
-					})
-					.catch((err) => res.status(400).json('Unable to get user'));
-			} else {
-				res.status(400).json('Wrong credentials.');
-			}
-		})
-		.catch((err) => res.status(400).json('Wrong credentials.'));
+app.post('/signin', (req, res) => {handelSignin(req, res, db, bcrypt);});
+
+app.post('/register', (req, res) => {handelRegister(req, res, db, bcrypt);
+	//The above is an example of dependicy injection. We are
+	//passing the dependicies of the server to the function being called.
 });
 
-app.post('/register', (req, res) => {
-	const { email, name, password } = req.body;
-	//Asyncronis method bcrypt.hash
-	const hash = bcrypt.hashSync(password);
-	db.transaction((trx) => {
-		trx
-			.insert({
-				hash: hash,
-				email: email,
-			})
-			.into('login')
-			.returning('email')
-			.then((loginEmail) => {
-				trx('users')
-					.returning('*')
-					.insert({
-						name: name,
-						email: loginEmail[0].email,
-						joined: new Date(),
-					})
-					.then((user) => {
-						res.json(user[0]);
-					});
-			})
-			.then(trx.commit)
-			.catch(trx.rollback);
-	})
-		.then((response) => {
-			console.log('Thank you! Your registration was successful.');
-		})
-		.catch((err) => res.status(400).json('Unable to register'));
-});
+app.get('/profile/:id', (req, res) => {handelProfile(req, res, db)});
 
-app.get('/profile/:id', (req, res) => {
-	const { id } = req.params;
-	db.select('*')
-		.from('users')
-		.where('id', id)
-		.then((user) => {
-			if (user.length) {
-				res.json(user[0]);
-			} else {
-				res.status(400).json('Not found');
-			}
-		})
-		.catch((err) => res.status(400).json('Error getting user'));
-});
-
-app.put('/image', (req, res) => {
-	const { id } = req.body;
-	db('users')
-		.where('id', '=', id)
-		.increment({ entries: 1 })
-		.returning('entries')
-		.then((entries) => {
-			res.json(entries[0].entries);
-		})
-		.catch((err) => res.status(400).json('Unable to get entries'));
-});
+app.put('/image', (req, res) => {handelEntries(req, res, db)});
 
 
 // PORT
