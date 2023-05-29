@@ -41,7 +41,7 @@ app.post('/register', (req, res) => {handelRegister(req, res, db, bcrypt);
 	//passing the dependicies of the server to the function being called.
 });
 
-app.get('/profile/:id', (req, res) => {handelProfile(req, res, db)});
+app.get('/profile/:id', (req, res) => {handelProfileGet(req, res, db)});
 
 app.put('/image', (req, res) => {handelEntries(req, res, db)});
 

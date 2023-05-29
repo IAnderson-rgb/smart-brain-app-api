@@ -1,4 +1,4 @@
-export const handelProfile = (req, res, db) => {
+export const handelProfileGet = (req, res, db) => {
 	const { id } = req.params;
 	db.select('*')
 		.from('users')
