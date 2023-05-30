@@ -1,108 +1,63 @@
 import express from 'express';
+import knex from 'knex';
 import bcrypt from 'bcrypt-nodejs';
 import cors from 'cors';
 
+import {handelRegister} from './controllers/register.js';
+import {handelSignin} from './controllers/signin.js';
+import {handelProfileGet} from './controllers/profile_id.js';
+import {handelEntries, handleApiCall} from './controllers/image.js';
+//Creates a connection to our PostgreSQL smart-brain databse.
+const db = knex({
+	client: 'pg',
+	connection: {
+	  host : '127.0.0.1',
+	  port : 5432,
+	  user : 'postgres',
+	  password : 'test',
+	  database : 'smart-brain'
+	}
+  });
+
+//Initializing Middleware.  
 const app = express();
 app.use(express.json());
 app.use(cors())
+// End Middleware //
 
-const database = {
-    users: [
-        {
-            id: '123',
-            name: 'Jo',
-            email: 'jo@gmail.com',
-            password: 'cookies',
-            entries: 0,
-            joined: new Date()
-        },
-        {
-            id: '124',
-            name: 'Sally',
-            email: 'sally@gmail.com',
-            password: 'notebook',
-            entries: 0,
-            joined: new Date()
-        }
-    ]
-}
-
+// API Routes //
 app.get('/', (req, res) => {
-	res.send(database.users);
+	db.select('*')
+		.from('users')
+		.then((users) => {
+			res.send(users);
+		})
+		.catch((err) => res.status(400).json('An error occurred.'));
 });
 
-app.post('/signin', (req, res) => {
-	if (
-		req.body.email === database.users[0].email &&
-		req.body.password === database.users[0].password
-	) {
-		res.json(database.users[0]);
-	} else {
-		res.status(400).json('error logging in');
+app.post('/signin', (req, res) => {handelSignin(req, res, db, bcrypt);});
+
+app.post('/register', (req, res) => {handelRegister(req, res, db, bcrypt);
+	//The above is an example of dependicy injection. We are
+	//passing the db and bcrypt dependicies to the function being called.
+});
+
+app.get('/profile/:id', (req, res) => {handelProfileGet(req, res, db)});
+
+app.put('/image', (req, res) => {handelEntries(req, res, db)});
+
+app.post('/imageurl', (req, res) => {handleApiCall(req, res)});
+// End API Routes //
+
+// PORT //
+const PORT = process.env.PORT
+app.listen(PORT || 3000, () => {
+	if (!PORT) {
+		return console.log(`Port is ${PORT}. Using default port 3000 instead.`);
 	}
-	// res.json('signin');
+	console.log(`Server is listening on port ${PORT}`);
 });
-
-app.post('/register', (req, res) => {
-	const { email, name, password } = req.body;
-	bcrypt.hash(password, null, null, function(err, hash) {
-		console.log(hash);
-	  });
-	database.users.push({
-		id: '125',
-		name: name,
-		email: email,
-		password: password,
-		entries: 0,
-		joined: new Date(),
-	});
-	res.json(database.users[database.users.length - 1]);
-});
-
-app.get('/profile/:id', (req, res) => {
-	const { id } = req.params;
-	let found = false;
-	database.users.forEach((user) => {
-		if (id === user.id) {
-			found = true;
-			return res.json(user);
-		}
-	});
-	if (!found) {
-		res.status(400).json('user not found');
-	}
-});
-
-app.put('/image', (req, res) => {
-	const { id } = req.body;
-	let found = false;
-	database.users.forEach((user) => {
-		if (id === user.id) {
-			found = true;
-			user.entries++;
-			return res.json(user.entries);
-		}
-	});
-	if (!found) {
-		res.status(400).json('not found');
-	}
-});
-
-
-  
-//   // Load hash from your password DB.
-//   bcrypt.compare("bacon", hash, function(err, res) {
-// 	  // res == true
-//   });
-//   bcrypt.compare("veggies", hash, function(err, res) {
-// 	  // res = false
-//   });
-
-// PORT
-app.listen(3000, () => {
-    console.log('app is running on port 3000');
-});
-
+// End Port //
 
 /* API Routes/Endpoints 
 / --> res => this is working
