@@ -1,6 +1,9 @@
 export const handelRegister = (req, res, db, bcrypt) => {
 	const { email, name, password } = req.body;
-	//Asyncronis method bcrypt.hash
+	if (!email || !name || !password) {
+		return res.status(400).json('Incorrect form submission');
+	}
+	//Syncronis method bcrypt.hash
 	const hash = bcrypt.hashSync(password);
 	db.transaction((trx) => {
 		trx

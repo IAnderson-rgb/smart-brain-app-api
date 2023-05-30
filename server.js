@@ -5,8 +5,8 @@ import cors from 'cors';
 
 import {handelRegister} from './controllers/register.js';
 import {handelSignin} from './controllers/signin.js';
-import {handelProfile} from './controllers/profile_id.js';
-import {handelEntries} from './controllers/image.js';
+import {handelProfileGet} from './controllers/profile_id.js';
+import {handelEntries, handleApiCall} from './controllers/image.js';
 //Creates a connection to our PostgreSQL smart-brain databse.
 const db = knex({
 	client: 'pg',
@@ -23,8 +23,9 @@ const db = knex({
 const app = express();
 app.use(express.json());
 app.use(cors())
+// End Middleware //
 
-
+// API Routes //
 app.get('/', (req, res) => {
 	db.select('*')
 		.from('users')
@@ -38,19 +39,25 @@ app.post('/signin', (req, res) => {handelSignin(req, res, db, bcrypt);});
 
 app.post('/register', (req, res) => {handelRegister(req, res, db, bcrypt);
 	//The above is an example of dependicy injection. We are
-	//passing the dependicies of the server to the function being called.
+	//passing the db and bcrypt dependicies to the function being called.
 });
 
 app.get('/profile/:id', (req, res) => {handelProfileGet(req, res, db)});
 
 app.put('/image', (req, res) => {handelEntries(req, res, db)});
 
+app.post('/imageurl', (req, res) => {handleApiCall(req, res)});
+// End API Routes //
 
-// PORT
-app.listen(3000, () => {
-    console.log('app is running on port 3000');
+// PORT //
+const PORT = process.env.PORT
+app.listen(PORT || 3000, () => {
+	if (!PORT) {
+		return console.log(`Port is ${PORT}. Using default port 3000 instead.`);
+	}
+	console.log(`Server is listening on port ${PORT}`);
 });
-
+// End Port //
 
 /* API Routes/Endpoints 
 / --> res => this is working
