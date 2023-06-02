@@ -3,10 +3,10 @@ import knex from 'knex';
 import bcrypt from 'bcrypt-nodejs';
 import cors from 'cors';
 
-import {handelRegister} from './controllers/register.js';
-import {handelSignin} from './controllers/signin.js';
-import {handelProfileGet} from './controllers/profile_id.js';
-import {handelEntries, handleApiCall} from './controllers/image.js';
+import {handelRegister} from './Controllers/register.js';
+import {handelSignin} from './Controllers/signin.js';
+import {handelProfileGet} from './Controllers/profile_id.js';
+import {handelEntries, handleApiCall} from './Controllers/image.js';
 //Creates a connection to our PostgreSQL smart-brain databse.
 const db = knex({
 	client: 'pg',
