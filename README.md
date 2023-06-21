@@ -12,7 +12,7 @@
 
 * The application was deployed on Render.com. It is a free account, so some lag time may be experienced while logging into the application. Please be patient! 🙂  
 ---  
-Use these environmental variables in your .env
+Create a `.env` on your local. Use these environmental variables in your `.env` from the `.env.example` file or just change the values in the `.env` file to be what you want and then source `./.env` to get the variables. 
 ~~~
 API_CLARIFAI= 'Key + yourApiKeyHere'
 DATABASE_URL= 'yourDatabaseUrl'
@@ -22,6 +22,7 @@ DATABASE_PW= 'yourDatabasePassword'
 DATABASE_DB= 'yourDatabaseName'
 PORT= 5432
 ~~~
+---
 The ORM for the application is [Knex.js](https://knexjs.org/guide/). For now please use the following schema to setup a [PostgreSQL](https://www.postgresql.org/) database for the application to run locally.
 ### Users:
 ~~~
