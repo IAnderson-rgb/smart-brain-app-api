@@ -9,8 +9,6 @@
 * Create an account, and get your Clarifai API key here: (https://www.clarifai.com/)
 
 * Please note that somtimes the predictive model can be down for training. If this happens the application may not work temporarily. Please check that the API model is working here: (https://clarifai.com/clarifai/main/models/face-detection)
-
-* The application was deployed on Render.com. It is a free account, so some lag time may be experienced while logging into the application. Please be patient! 🙂  
 ---  
 Create a `.env` on your local. Use these environmental variables in your `.env` from the `.env.example` file or just change the values in the `.env` file to be what you want and then source `./.env` to get the variables. 
 ~~~
